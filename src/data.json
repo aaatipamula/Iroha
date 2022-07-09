@@ -1,0 +1,6 @@
+{
+    "token": "token-here",
+    "dump_channel": 1234,
+    "command_prefix":".",
+    "about_me":"This is a short about me!"
+}
