@@ -25,10 +25,10 @@ This includes:
 Assuming you have [**git**](https://git-scm.com/) installed on your client, clone the repo by running the following command in your terminal:
 
 ```
-git clone https://github.com/aaatipamula/python-discord-bot-framework
+git clone https://github.com/aaatipamula/discordpy-bot-framework
 ``` 
 
-This will create a folder named `python-discord-bot-framework` in your working directory. Navigate into that directory in your terminal and run `python3 ./src/setup.py` This will ask you for a handful of items including a Discord channel in a server that you would not mind the bot dumping messages in, and the bot token. This will generate a data.json file that you can always edit to update any values that you may want to change <br>
+This will create a folder named `discordpy-bot-framework` in your working directory. Navigate into that directory in your terminal and run `python3 ./src/setup.py` This will ask you for a handful of items including a Discord channel in a server that you would not mind the bot dumping messages in, and the bot token. This will generate a data.json file that you can always edit to update any values that you may want to change <br>
 
 **Channel Id and User Id** <br>
 If you don't know how to get channel and user id's refer to [this](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) discord faq. <br>
