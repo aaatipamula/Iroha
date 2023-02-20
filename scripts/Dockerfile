@@ -1,12 +1,11 @@
-FROM alpine:latest as base
+FROM python:3
 
-RUN mkdir /home/bot/
 WORKDIR /home/bot/ 
 
-RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
-RUN python3 -m ensurepip
-RUN pip3 install --no-cache --upgrade pip setuptools
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY . .
 
-RUN pip3 install -r requirements.txt
+CMD [ "python", "./src/main.py" ]
 
