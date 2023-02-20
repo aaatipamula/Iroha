@@ -31,21 +31,33 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("Pong")
 
+def content_converter(content: str) -> str | None:
+    if content.lower() in ["tv", "ova", "movie", "special", "ona", "music"]:
+        return content.lower()
+
+    return None
+
 # Search for anime using the jikan api
 @client.command()
-async def search(ctx, num: Optional[int]=1, *query):
+async def search(ctx, num: Optional[int]=1, content_type: content_converter = "tv", *query):
 
-    print(query)
+    print(content_type)
     print(num)
 
-    request_string = f"https://api.jikan.moe/v4/anime?limit={num}&q={'%20'.join(query)}&order_by=members"
+    opts = {
+        "limit": num,
+        "q": " ".join(query),
+        "type": content_type
+    }
 
-    res = requests.get(request_string)
+    request_string = f"https://api.jikan.moe/v4/anime"
+
+    res = requests.get(request_string, params=opts)
     data = res.json()
 
-    for anime in data["data"]:
+    print(data)
 
-        print(anime["year"], anime["season"])
+    for anime in data["data"]:
 
         await ctx.send(embed=embeds.anime_card(anime))
 
