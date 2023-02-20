@@ -1,1 +1,13 @@
-{}
+{
+    "search": [
+        "(*results*, *search_string*)",
+        "Searches for anime using the MyAnimelist.net database.",
+        "*results*:\nAny number between 1 and 10 this determines how many results are to be given\n*search_string*:\nWhat anime you want to search."
+    ],
+
+    "help": [
+        "",
+        "Help if you need!",
+        "\u200b"
+    ]
+}
