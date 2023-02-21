@@ -29,19 +29,34 @@ def cmd_error(value):
     a.add_field(name="Error!", value=value)
     return a
 
+# Format the anime card
 def anime_card(anime: dict):
 
-    genres = [genre["name"] for genre in anime["genres"]]
+    status: dict = {
+        "FINISHED": "Completed",
+        "RELEASING": "Airing",
+        "NOT_YET_RELEASED": "Upcoming",
+        "CANCELED": "Canceled",
+        "HIATUS": "Hiatus"
+    }
 
-    card = discord.Embed(title=anime["title"], color=0xe398be, url=anime["url"])
-    card.set_image(url=anime["images"]["jpg"]["image_url"])
-    card.add_field(name="English Title:", value=anime["title_english"])
-    card.add_field(name="Status:", value=anime["status"])
-    card.add_field(name="Aired:", value=anime["aired"]["string"])
-    card.add_field(name="Season:", value=f"{anime['season']} {anime['year']}")
-    card.add_field(name="Genres", value=" ".join(genres))
-    card.add_field(name="Episodes", value=anime["episodes"])
-    card.add_field(name="Description:", value=anime["synopsis"], inline=False)
+    url = f"https://myanimelist.net/anime/{anime['idMal']}"
+    
+    # format the aired string
+    aired = f"{anime['startDate'].get('month', '?')}/{anime['startDate'].get('day', '?')}/{anime['startDate'].get('year', '?')} to {anime['endDate'].get('month', '?')}/{anime['endDate'].get('day', '?')}/{anime['endDate'].get('year', '?')}"
+
+    # format the description
+    description = anime.get("description", "?").replace("<br>", "")
+
+    card = discord.Embed(title=anime["title"].get("romaji", "?").capitalize(), color=0xe398be, url=url)
+    card.set_image(url=anime["image"]["url"])
+    card.add_field(name="English Title:", value=anime["title"].get("english", "?").capitalize())
+    card.add_field(name="Status:", value=status.get(anime["status"], "?"))
+    card.add_field(name="Aired:", value=aired)
+    card.add_field(name="Season:", value=f"{anime['season'].capitalize()} {anime['seasonYear']}")
+    card.add_field(name="Genres", value=" ".join(anime["genres"]))
+    card.add_field(name="Episodes", value=anime.get("episodes", "?"))
+    card.add_field(name="Description:", value=description, inline=False)
     card.set_footer(text="Search with: ?search")
     return card
 

@@ -3,8 +3,8 @@ import traceback as tb
 import json
 import logging
 import embeds
-import requests
 from typing import Optional
+from anilistApi import query, media_format
 from discord.ext import commands
 from discord.errors import NotFound
 
@@ -31,35 +31,13 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("Pong")
 
-def content_converter(content: str) -> str | None:
-    if content.lower() in ["tv", "ova", "movie", "special", "ona", "music"]:
-        return content.lower()
-
-    return None
-
-# Search for anime using the jikan api
+# Search for anime using the anilist api
 @client.command()
-async def search(ctx, num: Optional[int]=1, content_type: content_converter = "tv", *query):
+async def search(ctx, search_format: Optional[media_format] = "TV", *, search_string):
 
-    print(content_type)
-    print(num)
+    anime = query(search_string, search_format)["data"]["Media"]
 
-    opts = {
-        "limit": num,
-        "q": " ".join(query),
-        "type": content_type
-    }
-
-    request_string = f"https://api.jikan.moe/v4/anime"
-
-    res = requests.get(request_string, params=opts)
-    data = res.json()
-
-    print(data)
-
-    for anime in data["data"]:
-
-        await ctx.send(embed=embeds.anime_card(anime))
+    await ctx.send(embed=embeds.anime_card(anime))
 
 # Redefined help command
 @client.command()
