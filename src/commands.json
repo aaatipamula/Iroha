@@ -1,19 +1,28 @@
 {
-    "search": [
-        "(*content_type*, *search_string*)",
-        "Searches for anime using the MyAnimelist.net database.",
-        "*content_type*:\nAny number between 1 and 10 this determines how many results are to be given\n\n*search_string*:\nWhat anime you want to search."
-    ],
+    "search": 
+    {
+        "options": [
+        {
+            "name": "content_type",
+            "description": "Valid options are: ova, ona, show, short, movie, special, music, manga, novel, one_shot"
+        },
+        {
+            "name": "search_string",
+            "description": "What anime you want to search."
+        }],
 
-    "help": [
-        "",
-        "Help if you need!",
-        "\u200b"
-    ],
+        "description": "Searches for anime using the MyAnimelist.net database."
+    },
 
-    "ping": [
-        "",
-        "Sends 'pong' back.",
-        "\u200b"
-    ]
+    "help": 
+    {
+        "options": null,
+        "description": "Help if you need!"
+    },
+
+    "ping":
+    {
+        "options": null,
+        "description": "Sends pong back"
+    }
 }

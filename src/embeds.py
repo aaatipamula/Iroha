@@ -2,9 +2,7 @@ import discord
 import json
 import random
 
-
 commands = json.load(open('./src/commands.json'))
-data = json.load(open('./src/data.json'))
 
 embed_color = 0xe398be
 
@@ -32,7 +30,7 @@ def cmd_error(value):
     return a
 
 # Format the anime card
-def anime_card(anime: dict):
+def anime_card(anime: dict) -> discord.Embed:
 
     status: dict = {
         "FINISHED": "Completed",
@@ -42,26 +40,29 @@ def anime_card(anime: dict):
         "HIATUS": "Hiatus"
     }
 
-    url = f"https://myanimelist.net/anime/{anime['idMal']}"
 
     # format the aired string
     aired = f"{anime['startDate'].get('month', '?')}/{anime['startDate'].get('day', '?')}/{anime['startDate'].get('year', '?')} to {anime['endDate'].get('month', '?')}/{anime['endDate'].get('day', '?')}/{anime['endDate'].get('year', '?')}"
 
-    # format the description
-    description = anime.get("description", "?").replace("<br>", "")
+    # format the url
+    url = f"https://myanimelist.net/{anime['type']}/{anime['idMal']}"
 
-    card = discord.Embed(title=anime["title"].get("romaji", "?").capitalize(), color=embed_color, url=url)
+    # format the description
+    description = anime.get("description", "?").replace("<br>", "").replace("<i>", "")
+
+    # define embed
+    card = discord.Embed(title=anime["title"].get("romaji", "?").title(), color=embed_color, url=url)
     card.set_image(url=anime["image"]["url"])
-    card.add_field(name="English Title:", value=anime["title"].get("english", "?").capitalize())
+    card.add_field(name="English Title:", value=anime["title"].get("english", "?").title())
 
     if anime["type"] == "ANIME":
         card.add_field(name="Status:", value=status.get(anime["status"], "?"))
         card.add_field(name="Aired:", value=aired)
-        card.add_field(name="Season:", value=f"{anime['season'].capitalize()} {anime['seasonYear']}")
+        card.add_field(name="Season:", value=f"{anime.get('season', '?').capitalize()} {anime.get('seasonYear', '?')}")
         card.add_field(name="Episodes:", value=anime.get("episodes", "?"))
 
     else:
-        card.add_field(name="Chapters:", value=anime["chapters"])
+        card.add_field(name="Chapters:", value=anime.get("chapters"))
 
     card.add_field(name="Genres", value=" ".join(anime["genres"]))
     card.add_field(name="Description:", value=description, inline=False)
@@ -69,23 +70,30 @@ def anime_card(anime: dict):
 
     return card
 
-# help command, scalable through the commands.json file
-def help_command(opt):
+# format the command embed
+def format_command(name: str, command: dict) -> discord.Embed:
+    cmdEmbed = discord.Embed(title=name, color=embed_color, description=command["description"])
+    if not command["options"] is None:
+        for option in command["options"]:
+            cmdEmbed.add_field(name=option["name"], value=option["description"])
 
-    opts = ["Help Has Arrived!", "At Your Service!"]
+    return cmdEmbed
+
+# help command, scalable through the commands.json file
+def help_command(opt: str, command_prefix: str, about_me: str) -> discord.Embed:
+
+    messages = ["Help Has Arrived!", "At Your Service!"]
 
     if opt == 'general':
-        cmdEmbed = discord.Embed(title=random.choice(opts), color=embed_color)
-        cmdEmbed.add_field(name="About Me:", value=data.get('about_me'))
+        cmdEmbed = discord.Embed(title=random.choice(messages), color=embed_color, description=about_me)
         for command in commands:
-            cmdEmbed.add_field(name=f"{command}", value="\u200b", inline=False)
-        cmdEmbed.set_footer(text= f"Bot Command Prefix = '{data.get('command_prefix')}'")
+            cmdEmbed.add_field(name=command, value="\u200b", inline=False)
+        cmdEmbed.set_footer(text= f"Bot Command Prefix = '{command_prefix}'")
         return cmdEmbed
-
-    elif opt not in commands:
-        return cmd_error("Not a valid option.")
 
     elif opt in commands:
         cmd = commands.get(opt)
-        return embed_c(f"{opt} {cmd[0]}", cmd[1], cmd[2])
+        return format_command(opt, cmd)
+
+    return cmd_error("Not a valid option.")
 
