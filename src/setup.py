@@ -1,5 +1,3 @@
-import json
-
 def main():
     while True:
         token = input("Please input your bot token here: ")
@@ -11,7 +9,7 @@ def main():
     while True:
         dump_channel = input("Please input the channel id here: ")
 
-        if dump_channel != '':
+        if dump_channel != '' and dump_channel.isdigit():
             break
         else: print('\nPlease enter your bot token!')
 
@@ -29,17 +27,16 @@ def main():
             break
         else: print('\nPlease enter your bot token!')
 
-    data = {
-        'token': token,
-        'dump_channel': dump_channel,
-        'command_prefix': command_prefix,
-        'about_me': about_me
-    }
+    with open('./src/.env', 'w') as f:
+        dump_string = """
+            TOKEN="{token}"
+            DUMP_CHANNEL={dump_channel}
+            COMMAND_PREFIX=\"{command_prefix}\"
+            ABOUT_ME=\"{about_me}\""""
 
-    with open('./src/data.json', 'w') as f:
-        f.write(json.dumps(data, indent=4))
-        
-    print('''\nYour data is saved in ./src/data.json and can be edited if any of the previously input information is incorrect or needs to be updated!''')    
+        f.write(dump_string)
+
+    print('\nYour data is saved in ./src/.env and can be edited if any of the previously input information is incorrect or needs to be updated!')
 
 if __name__ == '__main__':
     main()

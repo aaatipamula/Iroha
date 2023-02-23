@@ -1,6 +1,7 @@
 import requests
 
-def media_format(form: str) -> str | None:
+# Simple converter for search argument
+def media_format(form: str) -> str:
 
   form = form.lower()
 
@@ -14,13 +15,13 @@ def media_format(form: str) -> str | None:
     "music": "MUSIC",
     "manga": "MANGA",
     "novel": "NOVEL",
-    "one shot": "ONE_SHOT"
+    "oneshot": "ONE_SHOT"
   }
 
   if form not in key.keys():
     raise ValueError
 
-  media = key.get(form)
+  media = key.get(form, "")
   return media
 
 def query(search_string: str, form: str) -> dict:
