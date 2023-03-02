@@ -113,7 +113,8 @@ def seasonal_cards(shows: list) -> list[discord.Embed]:
 
 # format the help embed for specific command
 def format_command(name: str, command: dict) -> discord.Embed:
-    cmdEmbed = discord.Embed(title=name, color=embed_color, description=command["description"])
+    opts = [option['name'] for option in command['options']]
+    cmdEmbed = discord.Embed(title=f"{name} ({', '.join(opts)})", color=embed_color, description=command["description"])
     if not command["options"] is None:
         for option in command["options"]:
             cmdEmbed.add_field(name=option["name"], value=option["description"])
@@ -136,5 +137,5 @@ def help_command(opt: str, command_prefix: str, about_me: str) -> discord.Embed:
         cmd = commands.get(opt)
         return format_command(opt, cmd)
 
-    return cmd_error("Not a valid option.")
+    return cmd_error("Not a valid command.")
 
