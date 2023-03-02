@@ -2,3 +2,4 @@
 __*
 *.json
 .env
+test*

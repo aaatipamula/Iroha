@@ -29,6 +29,15 @@ def cmd_error(value):
     a.add_field(name="Error!", value=value)
     return a
 
+def check_values(anime: dict):
+
+    for key, value in anime.items():
+        if value is None:
+            anime[key] = "?"
+        elif type(value) is dict:
+            check_values(value)
+
+
 # Format the anime card
 def anime_card(anime: dict) -> discord.Embed:
 
@@ -40,9 +49,10 @@ def anime_card(anime: dict) -> discord.Embed:
         "HIATUS": "Hiatus"
     }
 
+    check_values(anime)
 
     # format the aired string
-    aired = f"{anime['startDate'].get('month', '?')}/{anime['startDate'].get('day', '?')}/{anime['startDate'].get('year', '?')} to {anime['endDate'].get('month', '?')}/{anime['endDate'].get('day', '?')}/{anime['endDate'].get('year', '?')}"
+    aired = f"{anime['startDate']['month']}/{anime['startDate']['day']}/{anime['startDate']['year']} to {anime['endDate']['month']}/{anime['endDate']['day']}/{anime['endDate']['year']}"
 
     # format the url
     url = f"https://myanimelist.net/{anime['type']}/{anime['idMal']}"
@@ -51,21 +61,33 @@ def anime_card(anime: dict) -> discord.Embed:
     description = anime.get("description", "?").replace("<br>", "").replace("<i>", "")
 
     # define embed
-    card = discord.Embed(title=anime["title"].get("romaji", "?").title(), color=embed_color, url=url)
+    card = discord.Embed(title=anime["title"]["romaji"].title(), color=embed_color, url=url)
     card.set_image(url=anime["image"]["url"])
-    card.add_field(name="English Title:", value=anime["title"].get("english", "?").title())
+    card.add_field(name="English Title:", value=anime["title"]["english"].title())
 
     if anime["type"] == "ANIME":
         card.add_field(name="Status:", value=status.get(anime["status"], "?"))
         card.add_field(name="Aired:", value=aired)
-        card.add_field(name="Season:", value=f"{anime.get('season', '?').capitalize()} {anime.get('seasonYear', '?')}")
-        card.add_field(name="Episodes:", value=anime.get("episodes", "?"))
+        card.add_field(name="Season:", value=f"{anime['season'].capitalize()} {anime['seasonYear']}")
+        card.add_field(name="Episodes:", value=anime["episodes"])
 
     else:
-        card.add_field(name="Chapters:", value=anime.get("chapters"))
+        card.add_field(name="Chapters:", value=anime["chapters"])
+        card.add_field(name="Volumes:", value=anime["volumes"])
 
     card.add_field(name="Genres", value=" ".join(anime["genres"]))
-    card.add_field(name="Description:", value=description, inline=False)
+
+    print(len(description))
+    if len(description) > 1024:
+        indx = description[0:1024].rindex(".")
+        first_half = description[0:indx+1]
+        second_half = description[indx+1::]
+        card.add_field(name="Description:", value=first_half, inline=False)
+        card.add_field(name="\u200b", value=second_half, inline=False)
+
+    else:
+        card.add_field(name="Description:", value=description, inline=False)
+
     card.set_footer(text="Search with: '?search'")
 
     return card

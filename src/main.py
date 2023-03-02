@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 from typing import Optional
 from anilistApi import query, media_format
 from discord.ext import commands
-from discord.errors import NotFound
 
 # Declaring gateway intents, discord.py >= 2.0 feature
 intent = discord.Intents().default()
@@ -65,8 +64,8 @@ async def help(ctx, opt="general"):
 # General error handling for all commands, if a command does not have error handling explicitly called this function will handle all errors.
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, NotFound):
-        ctx.send(embed=embeds.cmd_error("This is not a command!"))
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send(embed=embeds.cmd_error("Not a command!"))
 
     else:
         print(error)

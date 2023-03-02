@@ -56,6 +56,7 @@ def query(search_string: str, form: str) -> dict:
           day
         }
         chapters
+        volumes
       }
     }
     '''
@@ -69,7 +70,7 @@ def query(search_string: str, form: str) -> dict:
     url = 'https://graphql.anilist.co'
 
     # Make the HTTP Api request
-    response = requests.post(url, json={'query': query, 'variables': variables}, timeout=6)
+    response = requests.post(url, json={'query': query, 'variables': variables}, timeout=5)
 
     json_response = response.json()
 
