@@ -3,11 +3,11 @@ import traceback as tb
 import logging
 import embeds
 import os
-from time import sleep
 from datetime import date
 from os.path import join, dirname
 from dotenv import load_dotenv
 from typing import Optional
+from requests.exceptions import Timeout
 from converters import curr_season, media_format, season_type
 from anilistApi import media_query, seasonal_query
 from discord.ext import commands
@@ -28,8 +28,17 @@ TOKEN = os.environ.get("TOKEN")
 COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX")
 ABOUT_ME = os.environ.get("ABOUT_ME")
 
+async def cleanup_loading(ctx):
+    msg = await ctx.fetch_message(loading_messages.pop())
+    await msg.delete()
+
+async def send_loading(ctx):
+    await ctx.send("Loading... <a:loading:1080977545375264860>")
+
 # Bot class
 client = commands.Bot(command_prefix="?", intents=intent, case_insensitive=True, help_command=None)
+@client.after_invoke(cleanup_loading)
+
 
 # Startup function, prints a ready message in the terminal and sends a ready message
 @client.event
@@ -46,39 +55,46 @@ async def ping(ctx):
 
 # Search for anime using the anilist api returns one result.
 @client.command()
+@commands.before_invoke(send_loading)
 async def search(ctx, search_format: Optional[media_format] = "TV", *, search_string):
 
-    response = media_query(search_string, search_format)
+    try: 
+        response = media_query(search_string, search_format)
 
-    if response.get("errors") is None:
-        anime = response["data"]["Media"]
-        await ctx.send(embed=embeds.anime_card(anime))
-        return
+        if response.get("errors") is None:
+            anime = response["data"]["Media"]
+            await ctx.send(embed=embeds.anime_card(anime))
+            return
 
-    await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))
+        await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))
+
+    except Timeout:
+        await ctx.send(embed=embeds.cmd_error("Request timed out."))
+
 
 # Search for seasonal anime.
 @client.command()
+@commands.before_invoke(send_loading)
 async def seasonal(ctx, results: Optional[int] = 3, season: Optional[season_type] = curr_season(), year: Optional[int] = date.today().year):
 
-    response = seasonal_query(season, year, results)
+    try:
+        response = seasonal_query(season, year, results)
 
-    if response.get("errors") is None:
-        anime_cards = embeds.seasonal_cards(response["data"]["Page"]["media"])
+        if response.get("errors") is None:
+            anime_cards = embeds.seasonal_cards(response["data"]["Page"]["media"])
+            await ctx.send(embeds=anime_cards)
+            return
 
-        for anime in anime_cards:
-            await ctx.send(embed=anime)
-            sleep(0.5)
+        await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))
 
-        return
-
-    await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))
+    except Timeout:
+        await ctx.send(embed=embeds.cmd_error("Request timed out."))
 
 # Redefined help command
 @client.command()
 async def help(ctx, opt="general"):
 
-    await ctx.send(embed=embeds.help_command(opt, COMMAND_PREFIX, ABOUT_ME))
+    await ctx.send(embed=embeds.help_command(opt, ctx.prefix, ABOUT_ME))
 
 # General error handling for all commands, if a command does not have error handling explicitly called this function will handle all errors.
 @client.event
@@ -98,8 +114,13 @@ async def on_command_error(ctx, error):
 @client.event
 async def on_message(message):
 
+    if message.author == client.user and message.content == "Loading... <a:loading:1080977545375264860>": 
+        global loading_messages
+        loading_messages = []
+        loading_messages.insert(0, message.id)
+
     # Ignores if user is client (self), generally good to have in this function.
-    if message.author == client.user:
+    elif message.author == client.user:
         return
 
     # Process any commands before on message event is processed
