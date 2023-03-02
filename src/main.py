@@ -3,10 +3,13 @@ import traceback as tb
 import logging
 import embeds
 import os
+from time import sleep
+from datetime import date
 from os.path import join, dirname
 from dotenv import load_dotenv
 from typing import Optional
-from anilistApi import query, media_format
+from converters import curr_season, media_format, season_type
+from anilistApi import media_query, seasonal_query
 from discord.ext import commands
 
 # Declaring gateway intents, discord.py >= 2.0 feature
@@ -25,6 +28,7 @@ TOKEN = os.environ.get("TOKEN")
 COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX")
 ABOUT_ME = os.environ.get("ABOUT_ME")
 
+# Bot class
 client = commands.Bot(command_prefix="?", intents=intent, case_insensitive=True, help_command=None)
 
 # Startup function, prints a ready message in the terminal and sends a ready message
@@ -35,22 +39,37 @@ async def on_ready():
     await bot_channel.send("I am ready.")
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="testing..."))
 
+# ping
 @client.command()
 async def ping(ctx):
     await ctx.send("Pong")
 
-# Search for anime using the anilist api
+# Search for anime using the anilist api returns one result.
 @client.command()
 async def search(ctx, search_format: Optional[media_format] = "TV", *, search_string):
 
-    print(search_format)
-    print(search_string)
-
-    response = query(search_string, search_format)
+    response = media_query(search_string, search_format)
 
     if response.get("errors") is None:
         anime = response["data"]["Media"]
         await ctx.send(embed=embeds.anime_card(anime))
+        return
+
+    await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))
+
+# Search for seasonal anime.
+@client.command()
+async def seasonal(ctx, results: Optional[int] = 3, season: Optional[season_type] = curr_season(), year: Optional[int] = date.today().year):
+
+    response = seasonal_query(season, year, results)
+
+    if response.get("errors") is None:
+        anime_cards = embeds.seasonal_cards(response["data"]["Page"]["media"])
+
+        for anime in anime_cards:
+            await ctx.send(embed=anime)
+            sleep(0.5)
+
         return
 
     await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))

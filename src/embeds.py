@@ -6,22 +6,13 @@ commands = json.load(open('./src/commands.json'))
 
 embed_color = 0xe398be
 
-# title only embed
-def embed_b(title):
-    a = discord.Embed(title= title, color=embed_color)
-    return a
-
-# name and value only embed
-def embed_a(name, value):
-    a = discord.Embed(color=embed_color)
-    a.add_field(name= name, value= value)
-    return a
-
-# title name and value embed
-def embed_c(title, name, value):
-    a = discord.Embed(title= title, color=embed_color)
-    a.add_field(name= name, value= value)
-    return a
+status = {
+    "FINISHED": "Completed",
+    "RELEASING": "Airing",
+    "NOT_YET_RELEASED": "Upcoming",
+    "CANCELED": "Canceled",
+    "HIATUS": "Hiatus"
+}
 
 # embed on command error
 def cmd_error(value):
@@ -29,6 +20,7 @@ def cmd_error(value):
     a.add_field(name="Error!", value=value)
     return a
 
+# replace null values with a "?"
 def check_values(anime: dict):
 
     for key, value in anime.items():
@@ -37,17 +29,8 @@ def check_values(anime: dict):
         elif type(value) is dict:
             check_values(value)
 
-
 # Format the anime card
 def anime_card(anime: dict) -> discord.Embed:
-
-    status: dict = {
-        "FINISHED": "Completed",
-        "RELEASING": "Airing",
-        "NOT_YET_RELEASED": "Upcoming",
-        "CANCELED": "Canceled",
-        "HIATUS": "Hiatus"
-    }
 
     check_values(anime)
 
@@ -55,10 +38,10 @@ def anime_card(anime: dict) -> discord.Embed:
     aired = f"{anime['startDate']['month']}/{anime['startDate']['day']}/{anime['startDate']['year']} to {anime['endDate']['month']}/{anime['endDate']['day']}/{anime['endDate']['year']}"
 
     # format the url
-    url = f"https://myanimelist.net/{anime['type']}/{anime['idMal']}"
+    url = f"https://myanimelist.net/{anime['type'].lower()}/{anime['idMal']}"
 
     # format the description
-    description = anime.get("description", "?").replace("<br>", "").replace("<i>", "")
+    description = anime.get("description", "?").replace("<br>", "").replace("<i>", "").replace("</br>", "").replace("</i>", "")
 
     # define embed
     card = discord.Embed(title=anime["title"]["romaji"].title(), color=embed_color, url=url)
@@ -77,7 +60,6 @@ def anime_card(anime: dict) -> discord.Embed:
 
     card.add_field(name="Genres", value=" ".join(anime["genres"]))
 
-    print(len(description))
     if len(description) > 1024:
         indx = description[0:1024].rindex(".")
         first_half = description[0:indx+1]
@@ -92,7 +74,44 @@ def anime_card(anime: dict) -> discord.Embed:
 
     return card
 
-# format the command embed
+# format the seasonal anime card
+def seasonal_cards(shows: list) -> list[discord.Embed]:
+
+    anime_cards = []
+
+    for anime in shows: 
+
+        check_values(anime)
+
+        # format the url
+        url = f"https://myanimelist.net/anime/{anime['idMal']}"
+
+        # format the description
+        description = anime.get("description", "?").replace("<br>", "").replace("<i>", "").replace("</br>", "").replace("</i>", "")
+
+        # define embed
+        card = discord.Embed(title=anime["title"]["romaji"].title(), color=embed_color, url=url)
+        card.set_image(url=anime["image"]["url"])
+        card.add_field(name="English Title:", value=anime["title"]["english"].title())
+        card.add_field(name="Genres", value=" ".join(anime["genres"]))
+
+        if len(description) > 1024:
+            indx = description[0:1024].rindex(".")
+            first_half = description[0:indx+1]
+            second_half = description[indx+1::]
+            card.add_field(name="Description:", value=first_half, inline=False)
+            card.add_field(name="\u200b", value=second_half, inline=False)
+
+        else:
+            card.add_field(name="Description:", value=description, inline=False)
+
+        card.set_footer(text=f"MAL Id: {anime['idMal']}")
+
+        anime_cards.append(card)
+
+    return anime_cards
+
+# format the help embed for specific command
 def format_command(name: str, command: dict) -> discord.Embed:
     cmdEmbed = discord.Embed(title=name, color=embed_color, description=command["description"])
     if not command["options"] is None:

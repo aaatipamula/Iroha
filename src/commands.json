@@ -4,7 +4,7 @@
         "options": [
         {
             "name": "content_type",
-            "description": "Valid options are: ova, ona, show, short, movie, special, music, manga, novel, one_shot"
+            "description": "What type of content you want\n\nValid Options: ova, ona, show, short, movie, special, music, manga, novel, one_shot"
         },
         {
             "name": "search_string",
@@ -12,6 +12,25 @@
         }],
 
         "description": "Searches for anime using the MyAnimelist.net database."
+    },
+
+    "seasonal": 
+    {
+        "options": [
+            {
+                "name": "results",
+                "description": "Number of anime to be displayed.\n\nDefault is 3"
+            },
+            {
+                "name": "season",
+                "description": "What season of anime you want.\n\nDefault is the current season\n\nValid Options: winter, spring, summer, fall"
+            },
+            {
+                "name": "year",
+                "description": "The year of the anime season.\n\nDefault is the current year"
+            }
+        ],
+        "description": "Displays the top 3 seasonal anime from the current season."
     },
 
     "help": 
