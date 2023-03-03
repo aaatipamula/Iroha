@@ -17,7 +17,7 @@ def seasonal_query(season: str, year: int, results: int):
           english
         }
         image: coverImage {
-          url: medium
+          url: large
         }
         idMal
         genres

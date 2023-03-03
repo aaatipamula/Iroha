@@ -1,5 +1,6 @@
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white)
 ![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)
 
 # Iroha
@@ -10,11 +11,16 @@ Made using the [discord.py](https://discordpy.readthedocs.io/en/stable/) framewo
 
 # About
 
-I use Discord often and occasionally I like to pull up information about an anime to display, I wrote this bot to make finding and displaying info on anime easier by implementing a query command.
+I use Discord often and occasionally I like to pull up information about an anime to display, I wrote this bot to make finding and displaying info on anime accessible right from discord. 
 
 The bot uses the [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs/) as the other APIs I found didn't give me the query results I was looking for. I would have use the MyAnimeList API however because firstly it required an Oauth2.0 flow that I felt was uncessary, and secondly because the API is in Beta I decided against using it.
 
-Since this is a simple one use project I didn't feel the need to add many other frills so the bot only does search queries.
+## Commands
+
+This bot is currently under development but here are a few of the commands:
+
+- search: searches for anime given a query string, optionally you can specify what type of media you are looking for
+- seasonal: sends the top seasonal anime for a given season and year. It defaults to the current season and year and 3 results displayed
 
 # Deployment
 
@@ -22,7 +28,7 @@ Since this is a simple one use project I didn't feel the need to add many other 
 
 The project can be deployed by navigating to the root folder of the project and running the `./src/setup.py` file to generate the `.env` file. 
 
-I can also be generated manually using the following format:
+It can also be generated manually using the following format:
 ```sh
 TOKEN="token"
 DUMP_CHANNEL=123456

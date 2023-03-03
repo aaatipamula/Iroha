@@ -19,6 +19,9 @@ intent.message_content = True
 # Logging
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
+# Loading message queue
+loading_messages = []
+
 # dotenv load variables
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -115,8 +118,6 @@ async def on_command_error(ctx, error):
 async def on_message(message):
 
     if message.author == client.user and message.content == "Loading... <a:loading:1080977545375264860>": 
-        global loading_messages
-        loading_messages = []
         loading_messages.insert(0, message.id)
 
     # Ignores if user is client (self), generally good to have in this function.
