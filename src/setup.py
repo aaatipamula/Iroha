@@ -11,28 +11,25 @@ def main():
 
         if dump_channel != '' and dump_channel.isdigit():
             break
-        else: print('\nPlease enter your bot token!')
+        else: print('\nPlease a valid integer!')
 
     while True:
         command_prefix = input("Please input the command prefix you would like here: ")
 
         if command_prefix != '':
             break
-        else: print('\nPlease enter your bot token!')
+        else: print('\nPlease a command prefix!')
 
     while True:
         about_me = input("Please input the about me you would like here: ")
 
         if about_me != '':
             break
-        else: print('\nPlease enter your bot token!')
+        else: print('\nPlease enter an about me!')
+
+    dump_string = f"TOKEN=\"{token}\"\nDUMP_CHANNEL={dump_channel}\nCOMMAND_PREFIX=\"{command_prefix}\"\nABOUT_ME=\"{about_me}\""
 
     with open('./src/.env', 'w') as f:
-        dump_string = """
-            TOKEN="{token}"
-            DUMP_CHANNEL={dump_channel}
-            COMMAND_PREFIX=\"{command_prefix}\"
-            ABOUT_ME=\"{about_me}\""""
 
         f.write(dump_string)
 
