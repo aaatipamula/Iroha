@@ -14,10 +14,16 @@ status = {
     "HIATUS": "Hiatus"
 }
 
-# embed on command error
-def cmd_error(value):
-    a = discord.Embed(color=embed_color)
-    a.add_field(name="Error!", value=value)
+# embed for any anilist api errors
+def api_error(desc: str):
+    a = discord.Embed(color=embed_color, title="AnilistAPI Error", description=desc)
+    a.add_field(name="\u200b", value="<:kannamad:1081423991035674624>")
+    return a
+
+# embed for bot errors
+def bot_error(desc: str):
+    a = discord.Embed(color=embed_color, title="Bot Error", description=desc)
+    a.add_field(name="\u200b", value="<:kannapolice:1081426665739145297>")
     return a
 
 # replace null values with a "?"
