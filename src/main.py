@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from typing import Optional
 from requests.exceptions import Timeout
 from converters import curr_season, media_format, season_type
-from anilistApi import media_query, seasonal_query
+from anilistApi import media_query, seasonal_query, mal_id_query
 from discord.ext import commands
 
 # Declaring gateway intents, discord.py >= 2.0 feature
@@ -31,6 +31,8 @@ TOKEN = os.environ.get("TOKEN")
 COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX")
 ABOUT_ME = os.environ.get("ABOUT_ME")
 
+print(COMMAND_PREFIX)
+
 async def cleanup_loading(ctx):
     msg = await ctx.fetch_message(loading_messages.pop())
     await msg.delete()
@@ -39,9 +41,8 @@ async def send_loading(ctx):
     await ctx.send("Loading... <a:loading:1080977545375264860>")
 
 # Bot class
-client = commands.Bot(command_prefix="?", intents=intent, case_insensitive=True, help_command=None)
+client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intent, case_insensitive=True, help_command=None)
 @client.after_invoke(cleanup_loading)
-
 
 # Startup function, prints a ready message in the terminal and sends a ready message
 @client.event
@@ -69,11 +70,10 @@ async def search(ctx, search_format: Optional[media_format] = "TV", *, search_st
             await ctx.send(embed=embeds.anime_card(anime))
             return
 
-        await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))
+        await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
 
     except Timeout:
-        await ctx.send(embed=embeds.cmd_error("Request timed out."))
-
+        await ctx.send(embed=embeds.bot_error("Request timed out."))
 
 # Search for seasonal anime.
 @client.command()
@@ -88,10 +88,27 @@ async def seasonal(ctx, results: Optional[int] = 3, season: Optional[season_type
             await ctx.send(embeds=anime_cards)
             return
 
-        await ctx.send(embed=embeds.cmd_error(response["errors"][0]["message"]))
+        await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
 
     except Timeout:
-        await ctx.send(embed=embeds.cmd_error("Request timed out."))
+        await ctx.send(embed=embeds.bot_error("Request timed out."))
+
+@client.command()
+@commands.before_invoke(send_loading)
+async def info(ctx, mal_id: int):
+
+    try:
+        response = mal_id_query(mal_id)
+
+        if response.get("errors") is None:
+            await ctx.send(embed=embeds.anime_card(response["data"]["Media"]))
+            return
+
+        await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
+
+    except Timeout:
+        await ctx.send(embed=embeds.bot_error("Request timed out."))
+
 
 # Redefined help command
 @client.command()
@@ -103,7 +120,7 @@ async def help(ctx, opt="general"):
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send(embed=embeds.cmd_error("Not a command!"))
+        await ctx.send(embed=embeds.bot_error("Not a command!"))
 
     else:
         print(error)

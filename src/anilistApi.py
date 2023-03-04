@@ -78,3 +78,45 @@ def media_query(search_string: str, form: str) -> dict:
 
   return send(query, variables)
 
+def mal_id_query(mal_id: int):
+  # query structure for GraphQL
+  query = '''
+  query ($anime_id: Int) {
+    Media (idMal: $anime_id) {
+      title {
+        romaji
+        english
+      }
+      image: coverImage {
+        url: extraLarge
+      }
+      idMal
+      status
+      season
+      seasonYear
+      genres
+      episodes
+      description
+      type
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+      chapters
+      volumes
+    }
+  }
+  '''
+
+  variables = {
+    'anime_id': mal_id
+  }
+
+  return send(query, variables)
+
