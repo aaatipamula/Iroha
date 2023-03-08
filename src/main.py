@@ -118,17 +118,20 @@ async def help(ctx, opt="general"):
 
 # General error handling for all commands, if a command does not have error handling explicitly called this function will handle all errors.
 @client.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
+async def on_command_error(ctx, err):
+    if isinstance(err, commands.CommandNotFound):
         await ctx.send(embed=embeds.bot_error("Not a command!"))
 
+    elif isinstance(err, commands.errors.MissingRequiredArgument):
+        await ctx.send(embed=embeds.bot_error(str(err)))
+
     else:
-        print(error)
+        print(err)
         err_channel = client.get_channel(DUMP_CHANNEL)
         if err_channel is None:
             raise Exception("Not a valid channel.")
 
-        await err_channel.send(f"```Error: {error}\nMessage: {ctx.message.content}\nAuthor: {ctx.author}\nServer: {ctx.message.guild}\nLink: {ctx.message.jump_url}\nTraceback: {''.join(tb.format_exception(None, error, error.__traceback__))}```")
+        await err_channel.send(f"```Error: {err}\nMessage: {ctx.message.content}\nAuthor: {ctx.author}\nServer: {ctx.message.guild}\nLink: {ctx.message.jump_url}\nTraceback: {''.join(tb.format_exception(None, err, err.__traceback__))}```")
 
 # A function that runs on every message sent.
 @client.event
