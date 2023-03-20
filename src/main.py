@@ -33,16 +33,11 @@ ABOUT_ME = os.environ.get("ABOUT_ME")
 
 print(COMMAND_PREFIX)
 
-async def cleanup_loading(ctx):
-    msg = await ctx.fetch_message(loading_messages.pop())
-    await msg.delete()
-
 async def send_loading(ctx):
-    await ctx.send("Loading... <a:loading:1080977545375264860>")
+    await ctx.send("Loading... <a:loading:1080977545375264860>", ephemeral=True, delete_after=10)
 
 # Bot class
 client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intent, case_insensitive=True, help_command=None)
-@client.after_invoke(cleanup_loading)
 
 # Startup function, prints a ready message in the terminal and sends a ready message
 @client.event
@@ -137,11 +132,8 @@ async def on_command_error(ctx, err):
 @client.event
 async def on_message(message):
 
-    if message.author == client.user and message.content == "Loading... <a:loading:1080977545375264860>": 
-        loading_messages.insert(0, message.id)
-
     # Ignores if user is client (self), generally good to have in this function.
-    elif message.author == client.user:
+    if message.author == client.user:
         return
 
     # Process any commands before on message event is processed
