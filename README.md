@@ -11,7 +11,7 @@ Made using the [discord.py](https://discordpy.readthedocs.io/en/stable/) framewo
 
 # About
 
-I use Discord often and occasionally I like to pull up information about an anime to display, I wrote this bot to make finding and displaying info on anime accessible right from discord. 
+I use Discord often and occasionally I like to pull up information about an anime to display, I wrote this bot to make finding and displaying info on anime accessible right from Discord. 
 
 The bot uses the [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs/) as the other APIs I found didn't give me the query results I was looking for. I would have use the MyAnimeList API however because firstly it required an Oauth2.0 flow that I felt was uncessary, and secondly because the API is in Beta I decided against using it.
 
