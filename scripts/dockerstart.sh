@@ -8,15 +8,15 @@ else
     if [ -f ./scripts/Dockerfile ]
     then 
 
-            echo 'Building main docker container image...'
-            sudo docker build -t $1 -f ./scripts/Dockerfile . 
+      echo 'Building main docker container image...'
+      sudo docker build -t $1 -f ./scripts/Dockerfile . 
 
-            echo 'Starting containers...'
-            sudo docker run -it --name $1 -d $1
+      echo 'Starting containers...'
+      sudo docker run -it --name $1 -d $1
 
     else
-        echo 'Please navigate to the home directory of this project'
-        exit 1 
+      echo 'Please navigate to the home directory of this project'
+      exit 1 
 
     fi
 fi
