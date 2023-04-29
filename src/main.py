@@ -17,7 +17,7 @@ intent = discord.Intents().default()
 intent.message_content = True
 
 # Logging
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='a')
 
 # Loading message queue
 loading_messages = []
