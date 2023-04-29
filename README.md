@@ -23,6 +23,10 @@ This bot is currently under development but here are a few of the commands:
 - seasonal: sends the top seasonal anime for a given season and year. It defaults to the current season and year and 3 results displayed
 - info: sends the info for an anime specified with the MAL id. 
 
+In the works: 
+
+- Random messages to spice things up!
+
 # Deployment
 
 ## Docker
