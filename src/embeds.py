@@ -1,8 +1,9 @@
 import discord
 import json
 import random
+from os.path import join, dirname
 
-commands = json.load(open('./src/commands.json'))
+commands = json.load(open(join(dirname(__file__), 'data', 'commands.json')))
 
 embed_color = 0xe398be
 
