@@ -29,7 +29,7 @@ def main():
 
     dump_string = f"TOKEN=\"{token}\"\nDUMP_CHANNEL={dump_channel}\nCOMMAND_PREFIX=\"{command_prefix}\"\nABOUT_ME=\"{about_me}\""
 
-    with open('./src/.env', 'w') as f:
+    with open('./src/data/.env', 'w') as f:
 
         f.write(dump_string)
 

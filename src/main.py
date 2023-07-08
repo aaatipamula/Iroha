@@ -3,6 +3,7 @@ import traceback as tb
 import logging
 import embeds
 import os
+import sys
 from datetime import date
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -17,19 +18,19 @@ intent = discord.Intents().default()
 intent.message_content = True
 
 # Logging
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='a')
+handler = logging.StreamHandler(stream=sys.stdout)
 
 # Loading message queue
 loading_messages = []
 
 # dotenv load variables
-dotenv_path = join(dirname(__file__), '.env')
+dotenv_path = join(dirname(__file__), 'data', '.env')
 load_dotenv(dotenv_path=dotenv_path)
 
-DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL"))
+DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "0"))
 TOKEN = os.environ.get("TOKEN")
-COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX")
-ABOUT_ME = os.environ.get("ABOUT_ME")
+COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX", "?")
+ABOUT_ME = os.environ.get("ABOUT_ME", "")
 
 print(COMMAND_PREFIX)
 
@@ -55,7 +56,7 @@ async def ping(ctx):
 # Search for anime using the anilist api returns one result.
 @client.command()
 @commands.before_invoke(send_loading)
-async def search(ctx, search_format: Optional[media_format] = "TV", *, search_string):
+async def search(ctx, search_format: Optional[media_format]="TV", *, search_string):
 
     try: 
         response = media_query(search_string, search_format)
@@ -73,7 +74,7 @@ async def search(ctx, search_format: Optional[media_format] = "TV", *, search_st
 # Search for seasonal anime.
 @client.command()
 @commands.before_invoke(send_loading)
-async def seasonal(ctx, results: Optional[int] = 3, season: Optional[season_type] = curr_season(), year: Optional[int] = date.today().year):
+async def seasonal(ctx, results: Optional[int] = 3, season: Optional[season_type]=curr_season(), year: Optional[int] = date.today().year):
 
     try:
         response = seasonal_query(season, year, results)
