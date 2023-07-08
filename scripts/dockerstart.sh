@@ -16,6 +16,7 @@ else
         -it \
         --name $1 \
         --mount type=bind,source=$(pwd)/src/data,target=/home/bot/src/data,readonly \
+        $1
 
     else
       echo 'Please navigate to the home directory of this project'
