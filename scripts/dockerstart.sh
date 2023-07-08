@@ -12,7 +12,10 @@ else
       sudo docker build -t $1 -f ./scripts/Dockerfile . 
 
       echo 'Starting containers...'
-      sudo docker run -it --name $1 -d $1
+      docker run -d \
+        -it \
+        --name $1 \
+        --mount type=bind,source=$(pwd)/src/data,target=/home/bot/src/data,readonly \
 
     else
       echo 'Please navigate to the home directory of this project'
