@@ -40,7 +40,7 @@ def season_type(season: str) -> str:
   return season
 
 # Returns current season
-def curr_season():
+def curr_season() -> int:
   now = date.today()
   now = now.replace(year=year)
   return next(season for season, (start, end) in seasons if start <= now <= end)
