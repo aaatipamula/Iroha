@@ -4,6 +4,7 @@ import logging
 import embeds
 import os
 import sys
+from random import choice
 from datetime import date
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -28,11 +29,24 @@ dotenv_path = join(dirname(__file__), 'data', '.env')
 load_dotenv(dotenv_path=dotenv_path)
 
 DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "0"))
-TOKEN = os.environ.get("TOKEN")
+TOKEN = os.environ.get("TOKEN", "")
 COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX", "?")
 ABOUT_ME = os.environ.get("ABOUT_ME", "")
 
-print(COMMAND_PREFIX)
+greetings = [
+    "Hi!",
+    "Hello :)",
+    "<a:loading:1080977545375264860>",
+    "Hey there!",
+    "Nom",
+    "<a:Wokege:1127434204603486208>",
+    "<:rikkaSalute:1127434201919135766>",
+    "<a:wave:1004493976201592993>",
+    "<:Blobneutral:1127434200363040948>",
+    "<:kannamad:1081423991035674624>",
+    "<:kannapolice:1081426665739145297>",
+    "Huh?"
+]
 
 async def send_loading(ctx):
     await ctx.send("Loading... <a:loading:1080977545375264860>", ephemeral=True, delete_after=10)
@@ -46,12 +60,12 @@ async def on_ready():
     print('I am ready')
     bot_channel = client.get_channel(DUMP_CHANNEL)
     await bot_channel.send("I am ready.")
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="testing..."))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="Waiting..."))
 
 # ping
 @client.command()
 async def ping(ctx):
-    await ctx.send("Pong")
+    await ctx.send(choice(greetings))
 
 # Search for anime using the anilist api returns one result.
 @client.command()
@@ -79,12 +93,12 @@ async def seasonal(ctx, results: Optional[int] = 3, season: Optional[season_type
     try:
         response = seasonal_query(season, year, results)
 
-        if response.get("errors") is None:
-            anime_cards = embeds.seasonal_cards(response["data"]["Page"]["media"])
-            await ctx.send(embeds=anime_cards)
+        if response.get("errors"):
+            await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
             return
 
-        await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
+        anime_cards = embeds.seasonal_cards(response["data"]["Page"]["media"])
+        await ctx.send(embeds=anime_cards)
 
     except Timeout:
         await ctx.send(embed=embeds.bot_error("Request timed out."))
@@ -136,6 +150,9 @@ async def on_message(message):
     # Ignores if user is client (self), generally good to have in this function.
     if message.author == client.user:
         return
+
+    elif client.user in message.mentions:
+        message.channel.send(choice(greetings))
 
     # Process any commands before on message event is processed
     await client.process_commands(message)
