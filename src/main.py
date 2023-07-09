@@ -151,8 +151,8 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    elif client.user in message.mentions:
-        message.channel.send(choice(greetings))
+    elif client.user.mentioned_in(message):
+        await message.channel.send(choice(greetings))
 
     # Process any commands before on message event is processed
     await client.process_commands(message)
