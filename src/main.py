@@ -6,7 +6,7 @@ import traceback as tb
 from random import choice
 from datetime import date
 from os.path import join, dirname
-from typing import Optional, Annotated
+from typing import Literal, Optional, Annotated
 
 import embeds as ext
 from converters import curr_season, media_format, season_type
@@ -35,24 +35,34 @@ DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "0"))
 TOKEN = os.environ.get("TOKEN", "")
 COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX", "?")
 ABOUT_ME = os.environ.get("ABOUT_ME", "")
+LOCK = False
 
 greetings = [
-    "Hi!",
-    "Hello :)",
     "<a:loading:1080977545375264860>",
-    "Hey there!",
-    "Nom",
+    "<:usuibruh:1127434203341000734>",
+    "<:what:1147989883219099820>",
     "<a:Wokege:1127434204603486208>",
     "<:rikkaSalute:1127434201919135766>",
     "<a:wave:1004493976201592993>",
     "<:Blobneutral:1127434200363040948>",
     "<:kannamad:1081423991035674624>",
     "<:kannapolice:1081426665739145297>",
-    "Huh?"
 ]
 
 # Bot class
-client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intent, case_insensitive=True, help_command=None)
+client = commands.Bot(
+    command_prefix=COMMAND_PREFIX,
+    intents=intent,
+    case_insensitive=True,
+    help_command=None
+)
+
+@client.check
+async def is_locked(ctx):
+    if await client.is_owner(ctx.author):
+        return True
+
+    return not LOCK
 
 # Startup function, prints a ready message in the terminal and sends a ready message
 @client.event
@@ -115,7 +125,7 @@ async def info(ctx, mal_id: int):
         async with ctx.typing():
             response = mal_id_query(mal_id)
 
-        if response.get("errors") is None:
+        if response.get("errors"):
             await ctx.send(embed=ext.anime_card(response["data"]["Media"]))
             return
 
@@ -145,8 +155,9 @@ async def admin(ctx):
 async def kill_bot(ctx):
     await ctx.send(f"NOOOOO PLEASE {client.get_emoji(1145147159260450907)}") # :cri: emoji
 
-    def check(reaction, user):
-        return client.is_owner(user) and reaction.emoji == client.get_emoji(1136812895859134555) #:asukaL: emoji
+    async def check(reaction, user):
+        owner = await client.is_owner(user)
+        return owner and reaction.emoji == client.get_emoji(1136812895859134555) #:asukaL: emoji
 
     try:
         await client.wait_for("reaction_add", timeout=10.0, check=check)
@@ -174,6 +185,17 @@ async def unlock(ctx):
         LOCK = False
         await ctx.send(embed=ext.info_msg("Commands are now unlocked."))
 
+@admin.command()
+async def status(ctx, doing: str, *, status: str):
+    activity_key = {
+        "streaming": discord.Streaming,
+        "playing": discord.Game
+    }
+    actviity_type = discord.ActivityType.playing
+    activity = activity_key.get(doing)(status) if doing in activity_key else discord.Activity(type=actviity_type,name=status)
+    await client.change_presence(activity=activity)
+    await ctx.send("balls")
+
 
 # General error handling for all commands, if a command does not have error handling explicitly called this function will handle all errors.
 @client.event
@@ -183,6 +205,9 @@ async def on_command_error(ctx, err):
 
     elif isinstance(err, commands.errors.MissingRequiredArgument):
         await ctx.send(embed=ext.bot_error(str(err)))
+
+    elif isinstance(err, commands.errors.CheckFailure):
+        await ctx.send(embed=ext.bot_error("You are not allowed to use this command!"))
 
     else:
         print(err)

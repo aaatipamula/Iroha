@@ -33,7 +33,7 @@ def main():
 
         f.write(dump_string)
 
-    print('\nYour data is saved in ./src/.env and can be edited if any of the previously input information is incorrect or needs to be updated!')
+    print('\nYour data is saved in ./src/data/.env and can be edited if any of the previously input information is incorrect or needs to be updated!')
 
 if __name__ == '__main__':
     main()
