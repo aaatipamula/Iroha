@@ -82,7 +82,7 @@ def mal_id_query(mal_id: int):
   # query structure for GraphQL
   query = '''
   query ($anime_id: Int) {
-    Media (idMal: $anime_id) {
+    Media (idMal: $anime_id, format: TV) {
       title {
         romaji
         english

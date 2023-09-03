@@ -1,47 +1,74 @@
 {
-    "search": 
-    {
-        "options": [
-        {
-            "name": "content_type",
-            "description": "What type of content you want\n\nValid Options: ova, ona, show, short, movie, special, music, manga, novel, one_shot"
-        },
-        {
-            "name": "search_string",
-            "description": "What anime you want to search."
-        }],
-
-        "description": "Searches for anime using the MyAnimelist.net database."
+    "search": {
+        "hidden": false,
+        "cmd_desc": "Search for an anime with keywords.",
+        "params": [
+            {
+                "name": "content_type",
+                "optional": true,
+                "type": "positional",
+                "data_type": "A type of media",
+                "description": "What type of content you want returned.",
+                "notes": "Valid Options: ova, ona, show, short, movie, special, music, manga, novel, oneshot\nDefaults to *show*"
+            },
+            {
+                "name": "search_string",
+                "optional": true,
+                "type": "positional",
+                "data_type": "A query",
+                "description": "What anime you want to search."
+            }
+        ],
+        "usage": [
+            "`?search one piece`",
+            "`?search movie naruto`",
+            "`?search manga komi can't communicate`"
+        ]
     },
 
-    "seasonal": 
-    {
-        "options": [
+
+    "seasonal": {
+        "hidden": false,
+        "cmd_desc": "Displays the top 3 seasonal anime from the current season.",
+        "params": [
             {
                 "name": "results",
-                "description": "Number of anime to be displayed.\n\nDefault is 3"
+                "optional": true,
+                "type": "positional",
+                "data_type": "number",
+                "description": "Number of anime to be displayed.",
+                "notes": "Defaults to 3"
             },
             {
                 "name": "season",
-                "description": "What season of anime you want.\n\nDefault is the current season\n\nValid Options: winter, spring, summer, fall"
+                "optional": true,
+                "type": "positional",
+                "data_type": "A season (winter, spring, summer, fall)",
+                "description": "What season of anime you want.",
+                "notes": "Default is the current season."
             },
             {
                 "name": "year",
-                "description": "The year of the anime season.\n\nDefault is the current year"
+                "optional": true,
+                "type": "positional",
+                "data_type": "A valid year.",
+                "description": "The year of the anime season.",
+                "notes": "Default is the current year"
             }
         ],
-        "description": "Displays the top 3 seasonal anime from the current season."
+        "usage": [
+            "`?seasonal`",
+            "`?seasonal winter 2021`"
+        ]
     },
 
-    "help": 
-    {
-        "options": null,
-        "description": "Help if you need!"
-    },
 
-    "ping":
-    {
-        "options": null,
-        "description": "Sends pong back"
+    "ping": {
+        "hidden": false,
+        "cmd_desc": "Sends *pong* back",
+        "params": null,
+        "usage": [
+            "`?ping`"
+        ]
     }
 }

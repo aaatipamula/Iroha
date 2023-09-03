@@ -34,13 +34,13 @@ def media_format(form: str) -> str:
 def season_type(season: str) -> str:
   season = season.upper()
 
-  if season not in ['WINTER', 'FALL', 'SPRING', 'SUMMER']: 
+  if season not in ['WINTER', 'FALL', 'SPRING', 'SUMMER']:
     raise ValueError
 
   return season
 
 # Returns current season
-def curr_season() -> int:
+def curr_season() -> str:
   now = date.today()
   now = now.replace(year=year)
   return next(season for season, (start, end) in seasons if start <= now <= end)
