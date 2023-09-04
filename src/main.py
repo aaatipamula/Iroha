@@ -6,11 +6,11 @@ import traceback as tb
 from random import choice
 from datetime import date
 from os.path import join, dirname
-from typing import Literal, Optional, Annotated
+from typing import Optional, Annotated
 
-import embeds as ext
+import ext
 from converters import curr_season, media_format, season_type
-from anilistApi import media_query, seasonal_query, mal_id_query
+from anilist_api import media_query, seasonal_query, mal_id_query
 
 import discord
 from discord.ext import commands
@@ -23,9 +23,6 @@ intent.message_content = True
 
 # Logging
 handler = logging.StreamHandler(stream=sys.stdout)
-
-# Loading message queue
-loading_messages = []
 
 # dotenv load variables
 dotenv_path = join(dirname(__file__), 'data', '.env')
