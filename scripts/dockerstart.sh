@@ -5,7 +5,7 @@ then
     echo 'Please enter a name for the Docker image/container!'
     exit 0
 else
-    if [ -f ./scripts/Dockerfile ]
+    if [ -f ./Dockerfile ]
     then 
 
       echo 'Building main docker container image...'

@@ -19,9 +19,14 @@ The bot uses the [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs/) a
 
 This bot is currently under development but here are a few of the commands:
 
-- search: searches for anime given a query string, optionally you can specify what type of media you are looking for
-- seasonal: sends the top seasonal anime for a given season and year. It defaults to the current season and year and 3 results displayed
-- info: sends the info for an anime specified with the MAL id. 
+- `search`
+> Searches for anime given a query string, optionally you can specify what type of media you are looking for.
+
+- `seasonal` 
+> Sends the top seasonal anime for a given season and year. It defaults to the current season and year and 3 results displayed.
+
+- `info`
+> Sends the info for an anime specified with the MAL id. 
 
 In the works: 
 
@@ -48,8 +53,13 @@ From there the Docker Image can be created and run by running:
 
 Alternatively you can run the two following commands manually: 
 ```bash
+cd ./Iroha
 sudo docker build -t iroha -f ./scripts/Dockerfile .
-sudo docker run -it --name iroha -d iroha
+docker run -d \
+  -it \
+  --name iroha \
+  --mount type=bind,source=$(pwd)/src/data,target=/home/bot/src/data,readonly \
+  iroha
 ```
 
 

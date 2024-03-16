@@ -1,4 +1,3 @@
-import discord
 import traceback as tb
 import logging
 import embeds
@@ -7,12 +6,15 @@ import sys
 from random import choice
 from datetime import date
 from os.path import join, dirname
-from dotenv import load_dotenv
 from typing import Optional
-from requests.exceptions import Timeout
+
 from converters import curr_season, media_format, season_type
 from anilistApi import media_query, seasonal_query, mal_id_query
+
+import discord
 from discord.ext import commands
+from requests.exceptions import Timeout
+from dotenv import load_dotenv
 
 # Declaring gateway intents, discord.py >= 2.0 feature
 intent = discord.Intents().default()
@@ -62,7 +64,7 @@ async def on_ready():
     await bot_channel.send("I am ready.")
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="Waiting..."))
 
-# ping
+# Ping
 @client.command()
 async def ping(ctx):
     await ctx.send(choice(greetings))
