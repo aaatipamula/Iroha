@@ -1,5 +1,13 @@
-*.log
-__*
-data.json
+# Secrets
 .env
+data.json
+
+# Python stuff
+__pycache__
+.venv
+venv
+
+# Misc.
+*.log
 test*
+

@@ -61,5 +61,3 @@ docker run -d \
   --mount type=bind,source=$(pwd)/src/data,target=/home/bot/src/data,readonly \
   iroha
 ```
-
-
