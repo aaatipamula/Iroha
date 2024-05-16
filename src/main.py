@@ -35,7 +35,7 @@ TOKEN = os.environ.get("TOKEN", "")
 COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX", "?")
 ABOUT_ME = os.environ.get("ABOUT_ME", "")
 
-greetings = [
+GREETINGS = [
     "Hi!",
     "Hello :)",
     "<a:loading:1080977545375264860>",
@@ -67,7 +67,7 @@ async def on_ready():
 # Ping
 @client.command()
 async def ping(ctx):
-    await ctx.send(choice(greetings))
+    await ctx.send(choice(GREETINGS))
 
 # Search for anime using the anilist api returns one result.
 @client.command()
@@ -154,7 +154,7 @@ async def on_message(message):
         return
 
     elif client.user.mentioned_in(message):
-        await message.channel.send(choice(greetings))
+        await message.channel.send(choice(GREETINGS))
 
     # Process any commands before on message event is processed
     await client.process_commands(message)
