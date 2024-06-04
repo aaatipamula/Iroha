@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [$1 = '']
+if [ -z $1 ]
 then
     echo 'Please enter a name for the Docker image/container!'
     exit 0
@@ -9,7 +9,7 @@ else
     then 
 
       echo 'Building main docker container image...'
-      sudo docker build -t $1 -f ./scripts/Dockerfile . 
+      sudo docker build -t $1 -f ./Dockerfile .
 
       echo 'Starting containers...'
       docker run -d \
