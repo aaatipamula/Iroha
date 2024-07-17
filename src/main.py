@@ -1,164 +1,95 @@
-import traceback as tb
-import logging
-import embeds
 import os
 import sys
-from random import choice
-from datetime import date
+import traceback as tb
+from datetime import datetime
 from os.path import join, dirname
-from typing import Optional
 
-from converters import curr_season, media_format, season_type
-from anilistApi import media_query, seasonal_query, mal_id_query
+from users import UserCog
+from bot.admin import AdminCog
+from bot.embeds import cmd_error, bot_error
 
 import discord
-from discord.ext import commands
-from requests.exceptions import Timeout
+import logging
 from dotenv import load_dotenv
+from discord.ext import commands
+
+# load the .env file
+dotenv_path = join(dirname(__file__), 'data', '.env')
+
+try:
+    load_dotenv(dotenv_path=dotenv_path)
+except FileNotFoundError:
+    print(".env not found")
+
+# grab our env vars
+DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", ""))
+TOKEN = os.environ.get("TOKEN", "")
+COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX")
+ABOUT_ME = os.environ.get("ABOUT_ME", "")
+START_DATETIME = datetime.now()
 
 # Declaring gateway intents, discord.py >= 2.0 feature
-intent = discord.Intents().default()
+intent = discord.Intents.default()
 intent.message_content = True
+intent.reactions = True
+intent.members = True
 
-# Logging
+# log to stdout
 handler = logging.StreamHandler(stream=sys.stdout)
 
-# Loading message queue
-loading_messages = []
+# Discord Bot instance
+client = commands.Bot(
+    command_prefix=COMMAND_PREFIX if COMMAND_PREFIX else ".",
+    intents=intent, 
+    case_insensitive=True, # case insensitive commands
+    help_command=None
+)
 
-# dotenv load variables
-dotenv_path = join(dirname(__file__), 'data', '.env')
-load_dotenv(dotenv_path=dotenv_path)
+# create our cogs 
+admin_cog = AdminCog(client, DUMP_CHANNEL, START_DATETIME)
+user_cog = UserCog(client, ABOUT_ME)
 
-DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "0"))
-TOKEN = os.environ.get("TOKEN", "")
-COMMAND_PREFIX = os.environ.get("COMMAND_PREFIX", "?")
-ABOUT_ME = os.environ.get("ABOUT_ME", "")
+# NOTE: END SETUP
 
-GREETINGS = [
-    "Hi!",
-    "Hello :)",
-    "<a:loading:1080977545375264860>",
-    "Hey there!",
-    "Nom",
-    "<a:Wokege:1127434204603486208>",
-    "<:rikkaSalute:1127434201919135766>",
-    "<a:wave:1004493976201592993>",
-    "<:Blobneutral:1127434200363040948>",
-    "<:kannamad:1081423991035674624>",
-    "<:kannapolice:1081426665739145297>",
-    "Huh?"
-]
-
-async def send_loading(ctx):
-    await ctx.send("Loading... <a:loading:1080977545375264860>", ephemeral=True, delete_after=10)
-
-# Bot class
-client = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intent, case_insensitive=True, help_command=None)
-
-# Startup function, prints a ready message in the terminal and sends a ready message
 @client.event
 async def on_ready():
-    print('I am ready')
-    bot_channel = client.get_channel(DUMP_CHANNEL)
-    await bot_channel.send("I am ready.")
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="Waiting..."))
+    await client.add_cog(admin_cog)
+    await client.add_cog(user_cog)
+    print('Iroha is ready...')
 
-# Ping
-@client.command()
-async def ping(ctx):
-    await ctx.send(choice(GREETINGS))
-
-# Search for anime using the anilist api returns one result.
-@client.command()
-@commands.before_invoke(send_loading)
-async def search(ctx, search_format: Optional[media_format]="TV", *, search_string):
-
-    try: 
-        response = media_query(search_string, search_format)
-
-        if response.get("errors") is None:
-            anime = response["data"]["Media"]
-            await ctx.send(embed=embeds.anime_card(anime))
-            return
-
-        await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
-
-    except Timeout:
-        await ctx.send(embed=embeds.bot_error("Request timed out."))
-
-# Search for seasonal anime.
-@client.command()
-@commands.before_invoke(send_loading)
-async def seasonal(ctx, results: Optional[int] = 3, season: Optional[season_type]=curr_season(), year: Optional[int] = date.today().year):
-
-    try:
-        response = seasonal_query(season, year, results)
-
-        if response.get("errors"):
-            await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
-            return
-
-        anime_cards = embeds.seasonal_cards(response["data"]["Page"]["media"])
-        await ctx.send(embeds=anime_cards)
-
-    except Timeout:
-        await ctx.send(embed=embeds.bot_error("Request timed out."))
-
-@client.command()
-@commands.before_invoke(send_loading)
-async def info(ctx, mal_id: int):
-
-    try:
-        response = mal_id_query(mal_id)
-
-        if response.get("errors") is None:
-            await ctx.send(embed=embeds.anime_card(response["data"]["Media"]))
-            return
-
-        await ctx.send(embed=embeds.api_error(response["errors"][0]["message"]))
-
-    except Timeout:
-        await ctx.send(embed=embeds.bot_error("Request timed out."))
-
-
-# Redefined help command
-@client.command()
-async def help(ctx, opt="general"):
-
-    await ctx.send(embed=embeds.help_command(opt, ctx.prefix, ABOUT_ME))
-
-# General error handling for all commands, if a command does not have error handling explicitly called this function will handle all errors.
+# General error handling for all commands.
+# NOTE: Change this soon
 @client.event
 async def on_command_error(ctx, err):
     if isinstance(err, commands.CommandNotFound):
-        await ctx.send(embed=embeds.bot_error("Not a command!"))
+        await ctx.send(embed=bot_error("Not a command!"))
 
     elif isinstance(err, commands.errors.MissingRequiredArgument):
-        await ctx.send(embed=embeds.bot_error(str(err)))
+        await ctx.send(embed=cmd_error(str(err)))
+
+    elif isinstance(err, commands.errors.UserInputError):
+        await ctx.send(embed=cmd_error(str(err)))
+
+    elif isinstance(err, commands.errors.CheckFailure):
+        await ctx.send(embed=cmd_error("You are not allowed to use this command."))
+
+    elif isinstance(err, commands.errors.NotOwner):
+        await ctx.send(embed=cmd_error("You are not allowed to use this command."))
+
+    elif isinstance(err, commands.errors.BadArgument):
+        await ctx.send(embed=cmd_error("You likely used an argument wrong, refer to the documentation for this command."))
 
     else:
         print(err)
         err_channel = client.get_channel(DUMP_CHANNEL)
-        if err_channel is None:
-            raise Exception("Not a valid channel.")
-
-        await err_channel.send(f"```Error: {err}\nMessage: {ctx.message.content}\nAuthor: {ctx.author}\nServer: {ctx.message.guild}\nLink: {ctx.message.jump_url}\nTraceback: {''.join(tb.format_exception(None, err, err.__traceback__))}```")
-
-# A function that runs on every message sent.
-@client.event
-async def on_message(message):
-
-    # Ignores if user is client (self), generally good to have in this function.
-    if message.author == client.user:
-        return
-
-    elif client.user.mentioned_in(message):
-        await message.channel.send(choice(GREETINGS))
-
-    # Process any commands before on message event is processed
-    await client.process_commands(message)
+        if err_channel:
+            # Known type checking error
+            await err_channel.send(f"```Error: {err}\n\
+                Message: {ctx.message.content}\n\
+                Author: {ctx.author}\n\
+                Server: {ctx.message.guild}\n\
+                Link: {ctx.message.jump_url}\n\
+                Traceback: {''.join(tb.format_exception(None, err, err.__traceback__))}```")
 
 if __name__ == '__main__':
     client.run(TOKEN, log_handler=handler)
-

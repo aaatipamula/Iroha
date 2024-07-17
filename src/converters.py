@@ -1,11 +1,14 @@
+from typing import Annotated, List, Tuple
 from datetime import date
 
-year = 2000
-seasons = [('WINTER', (date(year, 1, 1), date(year, 3, 31))),
-           ('SPRING', (date(year, 4, 1), date(year, 5, 31))),
-           ('SUMMER', (date(year, 6, 1), date(year, 9, 30))),
-           ('FALL', (date(year, 10, 1), date(year, 11, 30))),
-           ('WINTER', (date(year, 12, 1), date(year, 12, 31)))]
+SeasonChart = List[Tuple[str, Tuple[date, date]]]
+
+YEAR = 2000
+SEASONS: SeasonChart = [('WINTER', (date(YEAR, 1, 1), date(YEAR, 3, 31))),
+                       ('SPRING', (date(YEAR, 4, 1), date(YEAR, 5, 31))),
+                       ('SUMMER', (date(YEAR, 6, 1), date(YEAR, 9, 30))),
+                       ('FALL', (date(YEAR, 10, 1), date(YEAR, 11, 30))),
+                       ('WINTER', (date(YEAR, 12, 1), date(YEAR, 12, 31)))]
 
 media_table = {
   "show": "TV",
@@ -20,28 +23,29 @@ media_table = {
   "oneshot": "ONE_SHOT"
 }
 
-# Simple converter for search type
-def media_format(form: str) -> str:
-  form = form.lower()
-
-  if form not in media_table.keys():
-    raise ValueError
-
-  media = media_table.get(form, "")
-  return media
+# Converter for search type
+class MediaConverter:
+    def __call__(self, media_key: str) -> str:
+      key = media_key.lower()
+      if key not in media_table:
+        raise ValueError
+      media = media_table.get(key, "")
+      return media
 
 # Converter for season type
-def season_type(season: str) -> str:
-  season = season.upper()
+class SeasonConverter:
+    def __call__(self, season: str) -> str:
+      season = season.upper()
+      if season not in ['WINTER', 'FALL', 'SPRING', 'SUMMER']:
+        raise ValueError
+      return season
 
-  if season not in ['WINTER', 'FALL', 'SPRING', 'SUMMER']: 
-    raise ValueError
-
-  return season
+MediaType = Annotated[str, MediaConverter]
+SeasonType = Annotated[str, SeasonConverter]
 
 # Returns current season
-def curr_season() -> int:
+def curr_season() -> str:
   now = date.today()
-  now = now.replace(year=year)
-  return next(season for season, (start, end) in seasons if start <= now <= end)
+  now = now.replace(year=YEAR)
+  return next(season for season, (start, end) in SEASONS if start <= now <= end)
 

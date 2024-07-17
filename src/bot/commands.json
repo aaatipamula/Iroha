@@ -1,0 +1,116 @@
+{
+  "ping": {
+    "hidden": false,
+    "cmd_desc": "Sends a message back to ensure a connection.",
+    "params": null,
+    "usage": ["ping"]
+  },
+
+  "seasonal": {
+    "hidden": false,
+    "cmd_desc": "Show what anime are airing this season or previous seasons.",
+    "params": [
+      {
+        "name": "results",
+        "optional": true,
+        "type": "positional",
+        "data_type": "int",
+        "description": "The number of results to return when searching",
+        "notes": "Must be a valid number"
+      },
+      {
+        "name": "season",
+        "optional": true,
+        "type": "positional",
+        "data_type": "AnimeSeason",
+        "description": "The season of the year that you are looking for.",
+        "notes": "Can be one of: Summer, Spring, Fall, Winter. Defaults to current season."
+      },
+      {
+        "name": "year",
+        "optional": true,
+        "type": "positional",
+        "data_type": "int",
+        "description": "The year you want to search in.",
+        "notes": "Can be any calendar year. Defaults to current year."
+      }
+    ],
+    "usage": ["seasonal", "seasonal 5", "seasonal 5 spring", "seasonal 5 spring 2020"]
+  },
+
+  "search": {
+    "hidden": false,
+    "cmd_desc": "Search for an anime.",
+    "params": [
+      {
+        "name": "media",
+        "optional": true,
+        "type": "positional",
+        "data_type": "str",
+        "description": "The type of media to search for.",
+        "notes": "Must be one of: show, short, movie, special, ova, ona, music, manga, novel, oneshot. Defaults to show."
+      },
+      {
+        "name": "query",
+        "optional": false,
+        "type": "positional",
+        "data_type": "str",
+        "description": "The show you are trying to search for",
+        "notes": null
+      }
+    ],
+    "usage": ["search naruto", "search movie naruto"]
+  },
+
+  "info": {
+    "hidden": false,
+    "cmd_desc": "Pull up a specific anime.",
+    "params": [
+      {
+        "name": "mal_id",
+        "optional": true,
+        "type": "positional",
+        "data_type": "int",
+        "description": "The MyAnimeList ID of the anime.",
+        "notes": "Must be one of: show, short, movie, special, ova, ona, music, manga, novel, oneshot. Defaults to show."
+      },
+      {
+        "name": "query",
+        "optional": false,
+        "type": "positional",
+        "data_type": "str",
+        "description": "The show you are trying to search for",
+        "notes": null
+      }
+    ],
+    "usage": ["info 52991"]
+  },
+
+  "admin": {
+    "hidden": true,
+    "cmd_desc": "Displays a message which gives the status of the bot.",
+    "params": null,
+    "usage": ["admin"]
+  },
+
+  "admin kill": {
+    "hidden": true,
+    "cmd_desc": "Completely shuts down the bot. Must react to the bot message with <:L_:1136812895859134555> within 10 seconds.",
+    "params": null,
+    "usage": ["admin kill"]
+  },
+
+  "admin lock": {
+    "hidden": true,
+    "cmd_desc": "Locks all commands.",
+    "params": null,
+    "usage": ["admin lock"]
+  },
+
+  "admin unlock": {
+    "hidden": true,
+    "cmd_desc": "Unlocks all commands.",
+    "params": null,
+    "usage": ["admin unlock"]
+  }
+}
