@@ -112,6 +112,3 @@ class UserCog(commands.Cog):
         elif self.bot.user.mentioned_in(message):  # Known type checking error
             await message.channel.send(random_choice(GREETINGS))
 
-        await self.bot.process_commands(message)
-
-
