@@ -32,7 +32,6 @@ START_DATETIME = datetime.now()
 intent = discord.Intents.default()
 intent.message_content = True
 intent.reactions = True
-intent.members = True
 
 # log to stdout
 handler = logging.StreamHandler(stream=sys.stdout)
