@@ -74,13 +74,11 @@ class UserCog(commands.Cog):
     async def seasonal(
         self,
         ctx: commands.Context,
-        results: Optional[int],
-        season: Optional[SeasonType],
-        year: Optional[int]
+        results: Optional[int]=3,
+        season: SeasonType=curr_season(),
+        year: int=date.today().year
     ) -> None:
             results = results or 3
-            season = season or curr_season()
-            year = year or date.today().year
             response = seasonal_query(season, year, results)
             if response.get("errors"):
                 await ctx.send(embed=api_error(response["errors"][0]["message"]))

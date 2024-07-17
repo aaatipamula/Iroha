@@ -24,24 +24,22 @@ media_table = {
 }
 
 # Converter for search type
-class MediaConverter:
-    def __call__(self, media_key: str) -> str:
-      key = media_key.lower()
-      if key not in media_table:
+def media_converter(key: str):
+    key = key.lower()
+    if key not in media_table:
         raise ValueError
-      media = media_table.get(key, "")
-      return media
+    media = media_table.get(key, "")
+    return media
 
 # Converter for season type
-class SeasonConverter:
-    def __call__(self, season: str) -> str:
-      season = season.upper()
-      if season not in ['WINTER', 'FALL', 'SPRING', 'SUMMER']:
+def season_converter(season: str) -> str:
+    season = season.upper()
+    if season not in ['WINTER', 'FALL', 'SPRING', 'SUMMER']:
         raise ValueError
-      return season
+    return season
 
-MediaType = Annotated[str, MediaConverter]
-SeasonType = Annotated[str, SeasonConverter]
+MediaType = Annotated[str, media_converter]
+SeasonType = Annotated[str, season_converter]
 
 # Returns current season
 def curr_season() -> str:
