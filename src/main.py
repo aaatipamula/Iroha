@@ -55,6 +55,8 @@ user_cog = UserCog(client, ABOUT_ME)
 async def on_ready():
     await client.add_cog(admin_cog)
     await client.add_cog(user_cog)
+    game = discord.Game("Hello, I'm Iroha")
+    await client.change_presence(activity=game)
     print('Iroha is ready...')
 
 # General error handling for all commands.

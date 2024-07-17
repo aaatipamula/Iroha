@@ -112,5 +112,21 @@
     "cmd_desc": "Unlocks all commands.",
     "params": null,
     "usage": ["admin unlock"]
+  },
+
+  "admin status": {
+    "hidden": true,
+    "cmd_desc": "Sets the status of the bot.",
+    "params": [
+      {
+        "name": "status",
+        "optional": false,
+        "type": "positional",
+        "data_type": "str",
+        "description": "The new status of the bot.",
+        "notes": null
+      }
+    ],
+    "usage": ["admin status chillin"]
   }
 }

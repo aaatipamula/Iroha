@@ -94,12 +94,12 @@ class UserCog(commands.Cog):
 
     # Redefined help command
     @commands.command()
-    async def help(self, ctx: commands.Context, opt="general") -> None:
+    async def help(self, ctx: commands.Context, *, opt="general") -> None:
         is_owner = await self.bot.is_owner(ctx.author)
         userHelp, adminHelp = help_command(opt, ctx.prefix, self.about_me, is_owner=is_owner) # Known type checking error
         await ctx.send(embed=userHelp)
         if adminHelp is not None:
-            await ctx.reply(embed=adminHelp, ephemeral=True)
+            await ctx.reply(embed=adminHelp, mention_author=False, ephemeral=True)
 
 
     # A function that runs on every message sent.
