@@ -1,4 +1,9 @@
+import re
+from typing import List
+from datetime import date
 import discord
+
+from models import FuzzyDate, MediaContent
 
 # Change this somehow
 embed_color = 0xe398be
@@ -12,44 +17,57 @@ status = {
     "HIATUS": "Hiatus"
 }
 
-# replace null values with a "N/A"
-def check_values(anime: dict):
-    for key, value in anime.items():
-        if value is None:
-            anime[key] = "N/A"
-        elif type(value) is dict:
-            check_values(value)
+# Format the aired string
+def get_aired_str(start: FuzzyDate, end: FuzzyDate) -> str:
+    start_date = date(start['year'] or 1, start['month'] or 1, start['day'] or 1)
+    end_date = date(end['year'] or 1, end['month'] or 1, end['day'] or 1)
+
+    final_str = ""
+    if start_date != date(1, 1, 1):
+        final_str += start_date.strftime("%B %y -")
+    else:
+        return "TBD"
+
+    if end_date != date(1, 1, 1):
+        final_str += end_date.strftime("%B %y")
+    else:
+        final_str += "TBD"
+
+    return final_str
+
+# Format the season string
+def get_season_string(season: str | None, year: int | None) -> str:
+    if season is None or year is None:
+        return "TBD"
+    return season + " " + str(year)
 
 # Format the anime card
-def anime_card(anime: dict) -> discord.Embed:
+def anime_card(anime: MediaContent) -> discord.Embed:
+    aired = get_aired_str(anime["startDate"], anime["endDate"])
+    season = get_season_string(anime['season'], anime['seasonYear'])
 
-    check_values(anime)
-
-    # format the aired string
-    aired = f"{anime['startDate']['month']}/{anime['startDate']['day']}/{anime['startDate']['year']} to {anime['endDate']['month']}/{anime['endDate']['day']}/{anime['endDate']['year']}"
-
-    # format the url
-    url = f"https://myanimelist.net/{anime['type'].lower()}/{anime['idMal']}"
+    # format url
+    url = f"https://myanimelist.net/{anime['_type'].lower()}/{anime['idMal']}"
 
     # format the description
-    description = anime.get("description", "?").replace("<br>", "").replace("<i>", "").replace("</br>", "").replace("</i>", "")
+    description = re.sub(r"</?[a-z]*>", "", anime.get("description", "N/A"))
 
-    # define embed
-    card = discord.Embed(title=anime["title"]["romaji"].title(), color=embed_color, url=url)
+    # Create the embed
+    card = discord.Embed(title=anime["title"]["romaji"], color=embed_color, url=url)
     card.set_image(url=anime["image"]["url"])
-    card.add_field(name="English Title:", value=anime["title"]["english"].title())
+    card.add_field(name="English Title:", value=anime["title"]["english"])
 
-    if anime["type"] == "ANIME":
+    if anime["_type"] == "ANIME":
         card.add_field(name="Status:", value=status.get(anime["status"], "?"))
         card.add_field(name="Aired:", value=aired)
-        card.add_field(name="Season:", value=f"{anime['season'].capitalize()} {anime['seasonYear']}")
-        card.add_field(name="Episodes:", value=anime["episodes"])
+        card.add_field(name="Season:", value=season)
+        card.add_field(name="Episodes:", value=anime.get('episodes', '0'))
 
     else:
-        card.add_field(name="Chapters:", value=anime["chapters"])
-        card.add_field(name="Volumes:", value=anime["volumes"])
+        card.add_field(name="Chapters:", value=anime['chapters'])
+        card.add_field(name="Volumes:", value=anime['volumes'])
 
-    card.add_field(name="Genres", value=" ".join(anime["genres"]))
+    card.add_field(name="Genres:", value=", ".join(anime["genres"]))
 
     if len(description) > 1024:
         indx = description[0:1024].rindex(".")
@@ -57,7 +75,6 @@ def anime_card(anime: dict) -> discord.Embed:
         second_half = description[indx+1::]
         card.add_field(name="Description:", value=first_half, inline=False)
         card.add_field(name="\u200b", value=second_half, inline=False)
-
     else:
         card.add_field(name="Description:", value=description, inline=False)
 
@@ -66,25 +83,21 @@ def anime_card(anime: dict) -> discord.Embed:
     return card
 
 # format the seasonal anime card
-def seasonal_cards(shows: list) -> list[discord.Embed]:
-
+def seasonal_cards(shows: List[MediaContent]) -> List[discord.Embed]:
     anime_cards = []
 
     for anime in shows: 
-
-        check_values(anime)
-
         # format the url
         url = f"https://myanimelist.net/anime/{anime['idMal']}"
 
         # format the description
-        description = anime.get("description", "N/A").replace("<br>", "").replace("<i>", "").replace("</br>", "").replace("</i>", "")
+        description = re.sub(r"</?[a-z]*>", "", anime.get("description", "N/A"))
 
         # define embed
-        card = discord.Embed(title=anime["title"]["romaji"].title(), color=embed_color, url=url)
+        card = discord.Embed(title=anime["title"]["romaji"], color=embed_color, url=url)
         card.set_image(url=anime["image"]["url"])
-        card.add_field(name="English Title:", value=anime["title"]["english"].title())
-        card.add_field(name="Genres", value=" ".join(anime["genres"]))
+        card.add_field(name="English Title:", value=anime["title"]["english"])
+        card.add_field(name="Genres", value=", ".join(anime["genres"]))
 
         if len(description) > 1024:
             indx = description[0:1024].rindex(".")
@@ -92,11 +105,10 @@ def seasonal_cards(shows: list) -> list[discord.Embed]:
             second_half = description[indx+1::]
             card.add_field(name="Description:", value=first_half, inline=False)
             card.add_field(name="\u200b", value=second_half, inline=False)
-
         else:
             card.add_field(name="Description:", value=description, inline=False)
 
-        card.set_footer(text=f"MAL Id: {anime['idMal']}")
+        card.set_footer(text=f"MAL ID: {anime['idMal']}")
 
         anime_cards.append(card)
 

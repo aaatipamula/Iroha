@@ -61,12 +61,18 @@ class UserCog(commands.Cog):
     @handle_timeout
     async def search(self, ctx: commands.Context, media: Optional[MediaType], *, search_string: str) -> None:
         media = media or "TV"
+
         response = media_query(search_string, media)
-        if response.get("errors") is None:
-            anime = response["data"]["Media"]
-            await ctx.send(embed=anime_card(anime))
+        err = response.get("errors")
+        data = response.get("data")
+
+        if err:
+            await ctx.send(embed=api_error(err[0]["message"]))
             return
-        await ctx.send(embed=api_error(response["errors"][0]["message"]))
+        if data:
+            await ctx.send(embed=anime_card(data["Media"]))
+        else:
+            await ctx.send(embed=api_error("No data was found"))
 
     # Search for seasonal anime.
     @commands.command()
@@ -78,26 +84,39 @@ class UserCog(commands.Cog):
         season: Optional[SeasonType],
         year: Optional[int]
     ) -> None:
-            results = results or 3
-            season = season or curr_season()
-            year = year or date.today().year
-            response = seasonal_query(season, year, results)
-            if response.get("errors"):
-                await ctx.send(embed=api_error(response["errors"][0]["message"]))
-                return
-            anime_cards = seasonal_cards(response["data"]["Page"]["media"])
+        results = results or 3
+        season = season or curr_season()
+        year = year or date.today().year
+
+        response = seasonal_query(season, year, results)
+        err = response.get("errors")
+        data = response.get("data")
+
+        if err:
+            await ctx.send(embed=api_error(err[0]["message"]))
+            return
+        if data:
+            anime_cards = seasonal_cards(data["Page"]["media"])
             await ctx.send(embeds=anime_cards)
+        else:
+            await ctx.send(embed=api_error("No data was found"))
+
 
     @commands.command()
     @handle_timeout
     async def info(self, ctx: commands.Context, mal_id: int) -> None:
-            response = mal_id_query(mal_id)
+        response = mal_id_query(mal_id)
+        err = response.get("errors")
+        data = response.get("data")
 
-            if response.get("errors") is None:
-                await ctx.send(embed=anime_card(response["data"]["Media"]))
-                return
-
-            await ctx.send(embed=api_error(response["errors"][0]["message"]))
+        if err:
+            await ctx.send(embed=api_error(err[0]["message"]))
+            return
+        if data:
+            await ctx.send(embed=anime_card(data["Media"]))
+            return
+        else:
+            await ctx.send(embed=api_error("No data was found"))
 
     # Redefined help command
     @commands.command()
@@ -112,7 +131,6 @@ class UserCog(commands.Cog):
     # A function that runs on every message sent.
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-
         if message.author == self.bot.user:
             return
 
