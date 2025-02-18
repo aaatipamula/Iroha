@@ -1,16 +1,37 @@
 from typing import (
+    Dict,
     Optional,
     TypeVar,
     Generic,
     NotRequired,
     TypedDict,
     Literal,
+    Tuple,
     List
 )
 
+from datetime import date
+
 T = TypeVar('T')
 
-# Response wrapper
+Status = Literal['NOT_YET_RELEASED', 'FINISHED', 'RELEASING', 'CANCELED', 'HIATUS']
+Season = Literal['WINTER', 'SPRING', 'FALL', 'SUMMER']
+SeasonChart = List[Tuple[Season, date, date]]
+MediaFormat = Literal[
+               "TV",
+               "TV_SHORT",
+               "MOVIE",
+               "SPECIAL",
+               "OVA",
+               "ONA",
+               "MUSIC",
+               "MANGA",
+               "NOVEL",
+               "ONE_SHOT"
+               ]
+MediaMap = Dict[str, MediaFormat]
+
+# Response wrapper items
 class ErrorItem(TypedDict, total=False):
     message: str
     status: int
@@ -20,7 +41,7 @@ class Response(TypedDict, Generic[T]):
     data: Optional[T]
 
 
-# Anilist API
+# Anilist GraphQL API Types
 class MediaTitle(TypedDict):
     romaji: str
     english: str
@@ -35,16 +56,10 @@ class FuzzyDate(TypedDict):
 
 class MediaContent(TypedDict):
     title: MediaTitle
-    image:  MediaCoverImage
+    image: MediaCoverImage
     idMal: int
-    status: Literal[
-            "NOT_YET_RELEASED",
-            "FINISHED",
-            "RELEASING",
-            "CANCELED",
-            "HIATUS"
-            ]
-    season: Literal["WINTER", "SPRING", "SUMMER", "FALL"]
+    status: Status
+    season: Season
     seasonYear: int
     genres: List[str]
     episodes: int
@@ -59,7 +74,7 @@ class Media(TypedDict):
     Media: MediaContent
 
 class PageContent(TypedDict):
-    media: List[Media]
+    media: List[MediaContent]
 
 class Page(TypedDict):
     Page: PageContent

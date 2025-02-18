@@ -5,7 +5,7 @@ import functools
 
 from discord.utils import Coro
 
-from converters import curr_season, MediaType, SeasonType
+from converters import curr_season, FormatConverter, SeasonConverter
 from anilistApi import media_query, seasonal_query, mal_id_query
 from ext import anime_card, seasonal_cards
 from bot.embeds import help_command, api_error, bot_error
@@ -59,10 +59,16 @@ class UserCog(commands.Cog):
     # Search for anime using the anilist api returns one result.
     @commands.command()
     @handle_timeout
-    async def search(self, ctx: commands.Context, media: Optional[MediaType], *, search_string: str) -> None:
-        media = media or "TV"
+    async def search(
+        self,
+        ctx: commands.Context,
+        format: Optional[FormatConverter],
+        *, 
+        search_string: str
+    ) -> None:
+        format = format or "TV"
 
-        response = media_query(search_string, media)
+        response = media_query(search_string, format)
         err = response.get("errors")
         data = response.get("data")
 
@@ -81,7 +87,7 @@ class UserCog(commands.Cog):
         self,
         ctx: commands.Context,
         results: Optional[int],
-        season: Optional[SeasonType],
+        season: Optional[SeasonConverter],
         year: Optional[int]
     ) -> None:
         results = results or 3
@@ -122,7 +128,11 @@ class UserCog(commands.Cog):
     @commands.command()
     async def help(self, ctx: commands.Context, *, opt="general") -> None:
         is_owner = await self.bot.is_owner(ctx.author)
-        userHelp, adminHelp = help_command(opt, ctx.prefix, self.about_me, is_owner=is_owner) # Known type checking error
+        userHelp, adminHelp = help_command(
+                opt,
+                ctx.prefix or ".",
+                self.about_me, 
+                is_owner=is_owner)
         await ctx.send(embed=userHelp)
         if adminHelp is not None:
             await ctx.reply(embed=adminHelp, mention_author=False, ephemeral=True)
@@ -134,6 +144,6 @@ class UserCog(commands.Cog):
         if message.author == self.bot.user:
             return
 
-        elif self.bot.user.mentioned_in(message):  # Known type checking error
+        elif self.bot.user and self.bot.user.mentioned_in(message):
             await message.channel.send(random_choice(GREETINGS))
 

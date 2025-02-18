@@ -33,23 +33,24 @@ intent = discord.Intents.default()
 intent.message_content = True
 intent.reactions = True
 
-# log to stdout
+# Log to stdout without color
 handler = logging.StreamHandler(stream=sys.stdout)
+dt_fmt = '%Y-%m-%d %H:%M:%S'
+formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
 
 # Discord Bot instance
 client = commands.Bot(
-    command_prefix=COMMAND_PREFIX if COMMAND_PREFIX else ".",
+    command_prefix=COMMAND_PREFIX or ".",
     intents=intent, 
     case_insensitive=True, # case insensitive commands
     help_command=None
 )
 
-# create our cogs 
+# Create our cogs 
 admin_cog = AdminCog(client, DUMP_CHANNEL, START_DATETIME)
 user_cog = UserCog(client, ABOUT_ME)
 
-# NOTE: END SETUP
-
+# Setup client startup
 @client.event
 async def on_ready():
     await client.add_cog(admin_cog)
@@ -93,4 +94,4 @@ async def on_command_error(ctx, err):
                 Traceback: {''.join(tb.format_exception(None, err, err.__traceback__))}```")
 
 if __name__ == '__main__':
-    client.run(TOKEN, log_handler=handler)
+    client.run(TOKEN, log_handler=handler, log_formatter=formatter)
